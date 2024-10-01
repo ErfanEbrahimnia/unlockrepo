@@ -4,7 +4,7 @@ export default async function Home() {
       <main>
         <a href="/api/auth/github">Github</a>
         <br />
-        <a href="/api/auth/gumroad">Gumroad</a>
+        <a href="/api/connections/gumroad">Gumroad</a>
       </main>
       <footer></footer>
     </div>
