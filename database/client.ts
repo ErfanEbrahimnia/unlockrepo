@@ -4,7 +4,7 @@ import { createClient } from "@libsql/client";
 import { Schema } from "./schema";
 
 export const client = createClient({
-  url: "file:test/main.db",
+  url: "file:database/local.db",
 });
 
 export const db = new Kysely<Schema>({

@@ -1,7 +1,9 @@
-export default function Home() {
+export default async function Home() {
   return (
     <div>
-      <main>Test</main>
+      <main>
+        <a href="/api/auth/github">Github</a>
+      </main>
       <footer></footer>
     </div>
   );

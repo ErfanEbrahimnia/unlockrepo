@@ -1,8 +1,8 @@
 import { cache } from "react";
-import type { Session, User } from "lucia";
 import { cookies } from "next/headers";
-import { lucia } from "./lucia";
 import { redirect } from "next/navigation";
+import type { Session, User } from "lucia";
+import { lucia } from "./lucia";
 
 export const getSessionOrThrow = cache(async () => {
   const session = await getSession();
