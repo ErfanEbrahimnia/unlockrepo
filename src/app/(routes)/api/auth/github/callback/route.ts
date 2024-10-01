@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { OAuth2RequestError } from "arctic";
 import { generateIdFromEntropySize } from "lucia";
+import { ulid } from "ulid";
 import { github, lucia } from "@/app/_libs/auth/lucia";
 import { db } from "@/database/client";
 
@@ -25,12 +26,24 @@ export async function GET(request: Request): Promise<Response> {
     });
     const githubUser: GitHubUser = await githubUserResponse.json();
 
-    // Replace this with your own DB client.
     const existingUser = await db
       .selectFrom("users")
-      .selectAll()
-      .where("githubId", "=", githubUser.id)
+      .innerJoin("userConnections", "userConnections.userId", "users.id")
+      .select([
+        "users.id",
+        "users.username",
+        "users.createdAt",
+        "users.updatedAt",
+      ])
+      .where((eb) =>
+        eb.and([
+          eb("userConnections.type", "=", "github"),
+          eb("userConnections.connectionId", "=", githubUser.id),
+        ])
+      )
       .executeTakeFirst();
+
+    console.log(existingUser);
 
     if (existingUser) {
       const session = await lucia.createSession(existingUser.id, {});
@@ -52,15 +65,29 @@ export async function GET(request: Request): Promise<Response> {
 
     const userId = generateIdFromEntropySize(10); // 16 characters long
 
-    // Replace this with your own DB client.
-    await db
-      .insertInto("users")
-      .values({
-        id: userId,
-        githubId: githubUser.id,
-        username: githubUser.login,
-      })
-      .execute();
+    await db.transaction().execute(async (trx) => {
+      const user = await trx
+        .insertInto("users")
+        .values({
+          id: userId,
+          username: githubUser.login,
+        })
+        .returningAll()
+        .executeTakeFirstOrThrow();
+
+      await trx
+        .insertInto("userConnections")
+        .values({
+          id: ulid(),
+          userId: user.id,
+          type: "github",
+          connectionId: githubUser.id,
+          tokens: JSON.stringify({
+            accessToken: tokens.accessToken,
+          }),
+        })
+        .execute();
+    });
 
     const session = await lucia.createSession(userId, {});
     const sessionCookie = lucia.createSessionCookie(session.id);

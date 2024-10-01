@@ -2,7 +2,7 @@ import { Lucia } from "lucia";
 import { GitHub } from "arctic";
 import { LibSQLAdapter } from "@lucia-auth/adapter-sqlite";
 import { client } from "@/database/client";
-import { Schema } from "@/database/schema";
+import type { Schema } from "@/database/schema";
 
 export const github = new GitHub(
   process.env.GITHUB_CLIENT_ID!,
@@ -23,7 +23,6 @@ export const lucia = new Lucia(adapter, {
   },
   getUserAttributes: (attributes) => {
     return {
-      githubId: attributes.githubId,
       username: attributes.username,
     };
   },
