@@ -39,7 +39,7 @@ export async function invalidateSession() {
     sessionCookie.attributes
   );
 
-  return redirect("/login");
+  return redirect("/");
 }
 
 export const getSession = cache(

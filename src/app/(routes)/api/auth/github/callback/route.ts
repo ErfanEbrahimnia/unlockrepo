@@ -43,8 +43,6 @@ export async function GET(request: Request): Promise<Response> {
       )
       .executeTakeFirst();
 
-    console.log(existingUser);
-
     if (existingUser) {
       const session = await lucia.createSession(existingUser.id, {});
       const sessionCookie = lucia.createSessionCookie(session.id);
