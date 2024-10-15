@@ -4,6 +4,7 @@ import { ulid } from "ulid";
 import { db } from "@/database/client";
 import { gumroad } from "@/app/_libs/connections/gumroad";
 import { getSessionOrThrow } from "@/app/_libs/auth/session";
+import { Encryptor } from "@/license-repo/utils/encryptor";
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
@@ -53,7 +54,7 @@ export async function GET(request: Request): Promise<Response> {
         userId: user.id,
         type: "gumroad",
         connectionId: gumroadUser.id,
-        tokens: JSON.stringify({
+        tokens: Encryptor.encryptJSON({
           accessToken: tokens.accessToken,
         }),
       })

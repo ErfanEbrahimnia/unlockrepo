@@ -19,8 +19,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@/database/*": ["./database/*"]
+      "@/config/*": ["./config/*"],
+      "@/database/*": ["./database/*"],
+      "@/license-repo/*": ["./src/license-repo/*"],
+      "@/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

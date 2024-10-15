@@ -1,13 +1,13 @@
-import { CamelCasePlugin, Kysely } from "kysely";
-import { LibsqlDialect } from "@libsql/kysely-libsql";
-import { createClient } from "@libsql/client";
-import { Schema } from "./schema";
+import { env } from "@/config/env";
+import type { Schema } from "./schema";
+import { createKyselyClient, createLibSqlClient } from "./base_client";
 
-export const client = createClient({
-  url: "file:database/local.db",
+export const client = createLibSqlClient({
+  url: env.DATABASE_URL,
 });
 
-export const db = new Kysely<Schema>({
-  dialect: new LibsqlDialect({ client }),
-  plugins: [new CamelCasePlugin()],
+export const db = createKyselyClient<Schema>({
+  client,
 });
+
+export type Database = typeof db;

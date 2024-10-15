@@ -4,6 +4,7 @@ import { generateIdFromEntropySize } from "lucia";
 import { ulid } from "ulid";
 import { github, lucia } from "@/app/_libs/auth/lucia";
 import { db } from "@/database/client";
+import { Encryptor } from "@/license-repo/utils/encryptor";
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
@@ -56,7 +57,7 @@ export async function GET(request: Request): Promise<Response> {
       return new Response(null, {
         status: 302,
         headers: {
-          Location: "/",
+          Location: "/dashboard",
         },
       });
     }
@@ -80,7 +81,7 @@ export async function GET(request: Request): Promise<Response> {
           userId: user.id,
           type: "github",
           connectionId: githubUser.id,
-          tokens: JSON.stringify({
+          tokens: Encryptor.encryptJSON({
             accessToken: tokens.accessToken,
           }),
         })
@@ -99,7 +100,7 @@ export async function GET(request: Request): Promise<Response> {
     return new Response(null, {
       status: 302,
       headers: {
-        Location: "/",
+        Location: "/dashboard",
       },
     });
   } catch (error) {

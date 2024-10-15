@@ -25,8 +25,28 @@ interface UserConnections extends BaseTable {
   tokens: string;
 }
 
+interface Unlocks extends BaseTable {
+  id: string;
+  userId: string;
+  githubConnectionId: string;
+  merchantConnectionId: string;
+  productId: string;
+  repositoryId: string;
+}
+
+interface MerchantWebhooks extends BaseTable {
+  id: string;
+  name: string;
+  userId: string;
+  unlockId: string;
+  merchantConnectionId: string;
+  merchantWebhookId: string;
+}
+
 export interface Schema {
   users: UserTable;
   sessions: SessionTable;
   userConnections: UserConnections;
+  unlocks: Unlocks;
+  merchantWebhooks: MerchantWebhooks;
 }
