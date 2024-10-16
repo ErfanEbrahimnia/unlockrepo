@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 const schema = z.object({
-  id: z.string().ulid(),
+  id: z.string().uuid(),
+  updatedAt: z.date(),
+  createdAt: z.date(),
 });
 
 export type Unlock = z.infer<typeof schema>;

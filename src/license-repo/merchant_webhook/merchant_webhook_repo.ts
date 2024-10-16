@@ -1,4 +1,3 @@
-import { ulid } from "ulid";
 import type { Database } from "@/database/client";
 import { MerchantWebhook } from "./merchant_webhook";
 
@@ -21,7 +20,6 @@ export class MerchantWebhookRepo {
     const webhookRecord = await this.db
       .insertInto("merchantWebhooks")
       .values({
-        id: ulid(),
         name,
         userId,
         unlockId,

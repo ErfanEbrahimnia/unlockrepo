@@ -1,15 +1,16 @@
 import { Lucia } from "lucia";
 import { GitHub } from "arctic";
-import { LibSQLAdapter } from "@lucia-auth/adapter-sqlite";
-import { client } from "@/database/client";
+import { NodePostgresAdapter } from "@lucia-auth/adapter-postgresql";
+import { pgPool } from "@/database/client";
 import type { Schema } from "@/database/schema";
+import { isProduction } from "@/config/env";
 
 export const github = new GitHub(
   process.env.GITHUB_CLIENT_ID!,
   process.env.GITHUB_CLIENT_SECRET!
 );
 
-const adapter = new LibSQLAdapter(client, {
+const adapter = new NodePostgresAdapter(pgPool, {
   user: "users",
   session: "sessions",
 });
@@ -18,7 +19,7 @@ export const lucia = new Lucia(adapter, {
   sessionCookie: {
     expires: false,
     attributes: {
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction(),
     },
   },
   getUserAttributes: (attributes) => {

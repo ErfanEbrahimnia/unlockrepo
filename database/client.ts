@@ -1,13 +1,14 @@
-import { env } from "@/config/env";
+import { env, isProduction } from "@/config/env";
+import { createClient, createPool } from "./base_client";
 import type { Schema } from "./schema";
-import { createKyselyClient, createLibSqlClient } from "./base_client";
 
-export const client = createLibSqlClient({
-  url: env.DATABASE_URL,
+export const pgPool = createPool({
+  connectionString: env.DATABASE_URL,
+  ssl: isProduction(),
 });
 
-export const db = createKyselyClient<Schema>({
-  client,
+export const db = createClient<Schema>({
+  pool: pgPool,
 });
 
 export type Database = typeof db;

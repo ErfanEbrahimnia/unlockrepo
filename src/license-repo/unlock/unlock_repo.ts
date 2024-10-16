@@ -1,4 +1,3 @@
-import { ulid } from "ulid";
 import type { Database } from "@/database/client";
 
 export class UnlockRepo {
@@ -20,7 +19,6 @@ export class UnlockRepo {
     return this.db
       .insertInto("unlocks")
       .values({
-        id: ulid(),
         userId,
         productId,
         repositoryId,

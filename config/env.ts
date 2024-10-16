@@ -22,3 +22,5 @@ export const env = createEnv({
     GUMROAD_CLIENT_SECRET: process.env.GUMROAD_CLIENT_SECRET,
   },
 });
+
+export const isProduction = () => process.env.NODE_ENV === "production";

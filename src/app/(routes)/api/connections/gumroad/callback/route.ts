@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
 import { OAuth2RequestError } from "arctic";
-import { ulid } from "ulid";
 import { db } from "@/database/client";
 import { gumroad } from "@/app/_libs/connections/gumroad";
 import { getSessionOrThrow } from "@/app/_libs/auth/session";
@@ -50,7 +49,6 @@ export async function GET(request: Request): Promise<Response> {
     await db
       .insertInto("userConnections")
       .values({
-        id: ulid(),
         userId: user.id,
         type: "gumroad",
         connectionId: gumroadUser.id,

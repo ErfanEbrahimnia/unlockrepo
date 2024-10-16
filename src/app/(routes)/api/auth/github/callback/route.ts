@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { OAuth2RequestError } from "arctic";
 import { generateIdFromEntropySize } from "lucia";
-import { ulid } from "ulid";
 import { github, lucia } from "@/app/_libs/auth/lucia";
 import { db } from "@/database/client";
 import { Encryptor } from "@/license-repo/utils/encryptor";
@@ -68,7 +67,6 @@ export async function GET(request: Request): Promise<Response> {
       const user = await trx
         .insertInto("users")
         .values({
-          id: userId,
           username: githubUser.login,
         })
         .returningAll()
@@ -77,7 +75,6 @@ export async function GET(request: Request): Promise<Response> {
       await trx
         .insertInto("userConnections")
         .values({
-          id: ulid(),
           userId: user.id,
           type: "github",
           connectionId: githubUser.id,

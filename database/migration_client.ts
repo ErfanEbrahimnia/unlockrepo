@@ -1,5 +1,5 @@
 import { loadEnvConfig } from "@next/env";
-import { createKyselyClient, createLibSqlClient } from "./base_client";
+import { createClient, createPool } from "./base_client";
 
 loadEnvConfig(process.cwd());
 
@@ -9,10 +9,9 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-const client = createLibSqlClient({
-  url: process.env.DATABASE_URL,
-});
-
-export const db = createKyselyClient({
-  client,
+export const db = createClient({
+  pool: createPool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === "production",
+  }),
 });

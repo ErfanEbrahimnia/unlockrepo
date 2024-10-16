@@ -7,8 +7,8 @@ const schema = z.object({
   unlockId: z.string().min(1),
   merchantWebhookId: z.string().min(1),
   merchantConnectionId: z.string().min(1),
-  updatedAt: z.string(),
-  createdAt: z.string(),
+  updatedAt: z.date(),
+  createdAt: z.date(),
 });
 
 export type MerchantWebhook = z.infer<typeof schema>;

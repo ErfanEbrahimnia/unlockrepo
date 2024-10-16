@@ -11,11 +11,11 @@ const typeSchema = z.union([
 export type ConnectionType = z.infer<typeof typeSchema>;
 
 const schema = z.object({
-  id: z.string().ulid(),
+  id: z.string().uuid(),
   connectionId: z.string().min(1),
   type: typeSchema,
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
 export const deserializedConnectionSchema = schema.merge(
