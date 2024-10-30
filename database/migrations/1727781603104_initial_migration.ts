@@ -37,7 +37,7 @@ export async function up(db: Kysely<Schema>): Promise<void> {
       col.references("users.id").onDelete("cascade").notNull()
     )
     .addColumn("connectionId", "varchar(255)", (col) => col.unique().notNull())
-    .addColumn("type", "varchar(255)", (col) => col.notNull())
+    .addColumn("name", "varchar(255)", (col) => col.notNull())
     .addColumn("tokens", "text")
     .addColumn("createdAt", "timestamptz", (col) =>
       col.notNull().defaultTo(sql`now()`)

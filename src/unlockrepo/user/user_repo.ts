@@ -33,7 +33,7 @@ export class UserRepo {
         .insertInto("userConnections")
         .values({
           userId: user.id,
-          type: connectionName,
+          name: connectionName,
           connectionId,
           tokens: Encryptor.encryptJSON(connectionTokens),
         })
@@ -59,7 +59,7 @@ export class UserRepo {
       ])
       .where((eb) =>
         eb.and([
-          eb("userConnections.type", "=", "github"),
+          eb("userConnections.name", "=", "github"),
           eb("userConnections.connectionId", "=", githubId),
         ])
       )

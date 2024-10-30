@@ -13,7 +13,7 @@ export interface ConnectionTable<Tokens = string> {
   userId: string;
   tokens: Tokens;
   connectionId: string;
-  type: ConnectionName;
+  name: ConnectionName;
   updatedAt: ColumnType<Date, never, string>;
   createdAt: ColumnType<Date, string | undefined, never>;
 }
@@ -40,7 +40,7 @@ function toMapById(connections: Connection<ConnectionTokens>[]) {
 
 function toMapByType(connections: Connection<ConnectionTokens>[]) {
   return new StrictMap(
-    connections.map((connection) => [connection.type, connection])
+    connections.map((connection) => [connection.name, connection])
   );
 }
 

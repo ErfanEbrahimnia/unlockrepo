@@ -78,7 +78,7 @@ export function deleteUnlock({
     const merchantConnection = connectionsById.get(unlock.merchantConnectionId);
 
     const merchantClient = merchantClientFactory.createClient(
-      merchantConnection.type,
+      merchantConnection.name,
       merchantConnection.tokens.accessToken
     );
 

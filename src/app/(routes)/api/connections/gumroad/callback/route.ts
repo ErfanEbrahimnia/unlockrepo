@@ -35,7 +35,7 @@ export async function GET(request: Request): Promise<Response> {
       .selectAll()
       .where((eb) =>
         eb.and([
-          eb("userConnections.type", "=", "gumroad"),
+          eb("userConnections.name", "=", "gumroad"),
           eb("userId", "=", user.id),
           eb("userConnections.connectionId", "=", gumroadUser.id),
         ])
@@ -50,7 +50,7 @@ export async function GET(request: Request): Promise<Response> {
       .insertInto("userConnections")
       .values({
         userId: user.id,
-        type: "gumroad",
+        name: "gumroad",
         connectionId: gumroadUser.id,
         tokens: Encryptor.encryptJSON({
           accessToken: tokens.accessToken,
