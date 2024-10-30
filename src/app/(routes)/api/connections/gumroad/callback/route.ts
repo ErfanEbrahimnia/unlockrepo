@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
 import { OAuth2RequestError } from "arctic";
 import { db } from "@/database/client";
-import { gumroad } from "@/app/_libs/connections/gumroad";
+import { gumroad } from "@/app/_libs/connections/gumroad_provider";
 import { getSessionOrThrow } from "@/app/_libs/auth/session";
-import { Encryptor } from "@/license-repo/utils/encryptor";
+import { Encryptor } from "@/unlockrepo/utils/encryptor";
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
@@ -59,7 +59,10 @@ export async function GET(request: Request): Promise<Response> {
       .execute();
 
     return new Response(null, {
-      status: 200,
+      status: 302,
+      headers: {
+        Location: "/dashboard",
+      },
     });
   } catch (error) {
     console.error(error);

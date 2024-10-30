@@ -5,21 +5,21 @@ import {
 } from "@/app/_libs/auth/session";
 import { createServices } from "@/app/_libs/services";
 import { DashboardView } from "./dashboard_view";
+import { Connection } from "@/unlockrepo/user/connection";
 
 export default async function Dashboard() {
   const { user } = await getSessionOrRedirect();
 
-  const { githubService, merchantService, connectionService } =
-    createServices();
+  const services = createServices();
 
-  const userConnections = await connectionService.findUserConnections(user.id);
-
-  const repositoriesPromise = githubService.getUserRepositories({
-    githubConnection: userConnections.get("github"),
-  });
-
-  const productsPromise = userConnections.has("gumroad")
-    ? merchantService.getUserProducts(userConnections.get("gumroad"))
+  const repositoriesPromise = services.github.getGithubRepositories({ user });
+  const productsPromise = Connection.toMapByType(user.connections).has(
+    "gumroad"
+  )
+    ? services.merchant.getMerchantProducts({
+        user,
+        merchantName: "gumroad",
+      })
     : Promise.resolve([]);
 
   return (

@@ -1,4 +1,4 @@
-import { gumroad } from "@/app/_libs/connections/gumroad";
+import { gumroad } from "@/app/_libs/connections/gumroad_provider";
 import { generateState } from "arctic";
 import { cookies } from "next/headers";
 

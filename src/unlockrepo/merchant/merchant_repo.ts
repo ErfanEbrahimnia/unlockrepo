@@ -1,7 +1,6 @@
 import type { Database } from "@/database/client";
-import { MerchantWebhook } from "./merchant_webhook";
 
-export class MerchantWebhookRepo {
+export class MerchantRepo {
   public constructor(private db: Database) {}
 
   public async createWebhook({
@@ -10,14 +9,11 @@ export class MerchantWebhookRepo {
     merchantWebhookId,
     name,
     merchantConnectionId,
-  }: {
-    userId: string;
-    unlockId: string;
-    merchantWebhookId: string;
-    name: string;
-    merchantConnectionId: string;
-  }) {
-    const webhookRecord = await this.db
+  }: Omit<
+    MerchantWebhook,
+    "id" | "createdAt" | "updatedAt"
+  >): Promise<MerchantWebhook> {
+    return this.db
       .insertInto("merchantWebhooks")
       .values({
         name,
@@ -28,8 +24,6 @@ export class MerchantWebhookRepo {
       })
       .returningAll()
       .executeTakeFirstOrThrow();
-
-    return MerchantWebhook.parse(webhookRecord);
   }
 
   async findWebhooksByUnlockId({
@@ -38,8 +32,8 @@ export class MerchantWebhookRepo {
   }: {
     userId: string;
     unlockId: string;
-  }) {
-    const webhookRecords = await this.db
+  }): Promise<MerchantWebhook[]> {
+    return this.db
       .selectFrom("merchantWebhooks")
       .where((eb) =>
         eb.and({
@@ -49,11 +43,15 @@ export class MerchantWebhookRepo {
       )
       .selectAll()
       .execute();
-
-    return MerchantWebhook.parseMany(webhookRecords);
   }
 
-  async deleteWebhook({ id, userId }: { id: string; userId: string }) {
+  async deleteWebhook({
+    id,
+    userId,
+  }: {
+    id: string;
+    userId: string;
+  }): Promise<void> {
     await this.db
       .deleteFrom("merchantWebhooks")
       .where((eb) =>
@@ -64,4 +62,17 @@ export class MerchantWebhookRepo {
       )
       .execute();
   }
+}
+
+export type MerchantWebhookName = "sale" | "refund";
+
+export interface MerchantWebhook {
+  id: string;
+  name: MerchantWebhookName;
+  userId: string;
+  unlockId: string;
+  merchantWebhookId: string;
+  merchantConnectionId: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

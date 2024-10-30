@@ -1,8 +1,9 @@
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import type { Session, User } from "lucia";
+import type { Session } from "lucia";
 import { lucia } from "./lucia";
+import type { UserWithConnections } from "@/unlockrepo/user/user";
 
 export const getSessionOrThrow = cache(async () => {
   const session = await getSession();
@@ -44,7 +45,8 @@ export async function invalidateSession() {
 
 export const getSession = cache(
   async (): Promise<
-    { user: User; session: Session } | { user: null; session: null }
+    | { user: UserWithConnections; session: Session }
+    | { user: null; session: null }
   > => {
     const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
 

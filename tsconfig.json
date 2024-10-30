@@ -21,7 +21,7 @@
     "paths": {
       "@/config/*": ["./config/*"],
       "@/database/*": ["./database/*"],
-      "@/license-repo/*": ["./src/license-repo/*"],
+      "@/unlockrepo/*": ["./src/unlockrepo/*"],
       "@/*": ["./src/*"]
     }
   },

@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
 import { OAuth2RequestError } from "arctic";
-import { generateIdFromEntropySize } from "lucia";
 import { github, lucia } from "@/app/_libs/auth/lucia";
 import { db } from "@/database/client";
-import { Encryptor } from "@/license-repo/utils/encryptor";
+import { GithubClient } from "@/unlockrepo/github/github_client";
+import { UserRepo } from "@/unlockrepo/user/user_repo";
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
@@ -19,29 +19,11 @@ export async function GET(request: Request): Promise<Response> {
 
   try {
     const tokens = await github.validateAuthorizationCode(code);
-    const githubUserResponse = await fetch("https://api.github.com/user", {
-      headers: {
-        Authorization: `Bearer ${tokens.accessToken}`,
-      },
-    });
-    const githubUser: GitHubUser = await githubUserResponse.json();
+    const userRepo = new UserRepo(db);
+    const githubClient = new GithubClient({ accessToken: tokens.accessToken });
+    const githubUser = await githubClient.getUser();
 
-    const existingUser = await db
-      .selectFrom("users")
-      .innerJoin("userConnections", "userConnections.userId", "users.id")
-      .select([
-        "users.id",
-        "users.username",
-        "users.createdAt",
-        "users.updatedAt",
-      ])
-      .where((eb) =>
-        eb.and([
-          eb("userConnections.type", "=", "github"),
-          eb("userConnections.connectionId", "=", githubUser.id),
-        ])
-      )
-      .executeTakeFirst();
+    const existingUser = await userRepo.findByGithubId(githubUser.id);
 
     if (existingUser) {
       const session = await lucia.createSession(existingUser.id, {});
@@ -61,31 +43,14 @@ export async function GET(request: Request): Promise<Response> {
       });
     }
 
-    const userId = generateIdFromEntropySize(10); // 16 characters long
-
-    await db.transaction().execute(async (trx) => {
-      const user = await trx
-        .insertInto("users")
-        .values({
-          username: githubUser.login,
-        })
-        .returningAll()
-        .executeTakeFirstOrThrow();
-
-      await trx
-        .insertInto("userConnections")
-        .values({
-          userId: user.id,
-          type: "github",
-          connectionId: githubUser.id,
-          tokens: Encryptor.encryptJSON({
-            accessToken: tokens.accessToken,
-          }),
-        })
-        .execute();
+    const user = await userRepo.createUserWithConnection({
+      username: githubUser.login,
+      connectionId: githubUser.id,
+      connectionName: "github",
+      connectionTokens: tokens,
     });
 
-    const session = await lucia.createSession(userId, {});
+    const session = await lucia.createSession(user.id, {});
     const sessionCookie = lucia.createSessionCookie(session.id);
 
     cookies().set(
@@ -115,9 +80,4 @@ export async function GET(request: Request): Promise<Response> {
       status: 500,
     });
   }
-}
-
-interface GitHubUser {
-  id: string;
-  login: string;
 }

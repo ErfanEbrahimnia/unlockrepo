@@ -14,8 +14,8 @@ import {
   FormMessage,
 } from "@/app/_components/ui/form";
 import { createUnlock } from "./_actions/create_unlock";
-import type { Repository } from "@/license-repo/github/repository";
-import type { Product } from "@/license-repo/merchant/product";
+import type { MerchantProduct } from "@/unlockrepo/merchant/merchant_client";
+import type { GithubRepository } from "@/unlockrepo/github/github_client";
 
 const formSchema = z.object({
   repositoryId: z.string().min(1, { message: "Select a repository" }),
@@ -26,11 +26,11 @@ export function DashboardView({
   repositoriesPromise,
   productsPromise,
 }: {
-  repositoriesPromise: Promise<Repository[]>;
-  productsPromise: Promise<Product[]>;
+  repositoriesPromise: Promise<GithubRepository[]>;
+  productsPromise: Promise<MerchantProduct[]>;
 }) {
-  const repositories = use<Repository[]>(repositoriesPromise);
-  const products = use<Product[]>(productsPromise);
+  const repositories = use<GithubRepository[]>(repositoriesPromise);
+  const products = use<MerchantProduct[]>(productsPromise);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

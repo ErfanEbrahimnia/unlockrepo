@@ -1,5 +1,6 @@
 import type { OAuth2Provider } from "arctic";
 import { OAuth2Client } from "oslo/oauth2";
+import { env } from "@/config/env";
 
 export class Gumroad implements OAuth2Provider {
   private client: OAuth2Client;
@@ -52,5 +53,8 @@ export interface GumroadTokens {
 export const gumroad = new Gumroad(
   process.env.GUMROAD_CLIENT_ID!,
   process.env.GUMROAD_CLIENT_SECRET!,
-  { redirectURI: "http://localhost:3000/api/connections/gumroad/callback" }
+  {
+    redirectURI: new URL("/api/connections/gumroad/callback", env.VERCEL_URL)
+      .href,
+  }
 );

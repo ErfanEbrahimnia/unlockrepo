@@ -126,6 +126,10 @@ type ResourceSubscription = {
   post_url: string;
 };
 
+type DeletedResourceSubscription = {
+  message: string;
+};
+
 type GumroadResponseMapped<T, N extends string> = {
   [key in N]: T;
 };
@@ -151,3 +155,8 @@ export type GumroadResourceSubscriptionResponse = GumroadResponse<
 export type GumroadProduct = Product;
 
 export type GumroadWebhook = Webhook;
+
+export type GumroadDeletedResourceSubscriptionResponse = GumroadResponse<
+  DeletedResourceSubscription,
+  "message"
+>;

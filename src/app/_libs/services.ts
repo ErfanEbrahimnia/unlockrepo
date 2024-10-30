@@ -1,51 +1,45 @@
 import React from "react";
 import { db } from "@/database/client";
-import { UserService } from "@/license-repo/user/user_service";
-import { MerchantWebhookService } from "@/license-repo/merchant_webhook/merchant_webhook_service";
-import { MerchantWebhookRepo } from "@/license-repo/merchant_webhook/merchant_webhook_repo";
-import { UserRepo } from "@/license-repo/user/user_repo";
-import { UnlockService } from "@/license-repo/unlock/unlock_service";
-import { UnlockRepo } from "@/license-repo/unlock/unlock_repo";
-import { ConnectionService } from "@/license-repo/connection/connection_service";
-import { ConnectionRepo } from "@/license-repo/connection/connection_repo";
-import { GithubClient } from "@/license-repo/github/github_client";
-import { GithubService } from "@/license-repo/github/github_service";
-import { MerchantService } from "@/license-repo/merchant/merchant_service";
+import { MerchantRepo } from "@/unlockrepo/merchant/merchant_repo";
+import { UnlockRepo } from "@/unlockrepo/unlock/unlock_repo";
+import { createUnlock, deleteUnlock } from "@/unlockrepo/unlock/unlock_service";
+import { UserRepo } from "@/unlockrepo/user/user_repo";
+import { MerchantClientFactory } from "@/unlockrepo/merchant/merchant_client";
+import { GithubClientFactory } from "@/unlockrepo/github/github_client";
+import { getGithubRepositories } from "@/unlockrepo/github/github_service";
+import { getMerchantProducts } from "@/unlockrepo/merchant/merchant_service";
 
 export const createServices = React.cache(() => {
-  const githubClient = new GithubClient();
-
-  const userService = new UserService({
-    userRepo: new UserRepo(db),
-  });
-
-  const connectionService = new ConnectionService({
-    connectionRepo: new ConnectionRepo(db),
-  });
-
-  const githubService = new GithubService({
-    githubClient,
-  });
-
-  const merchantService = new MerchantService({
-    createClient: MerchantService.createClient,
-  });
-
-  const merchantWebhookService = new MerchantWebhookService({
-    merchantService,
-    merchantWebhookRepo: new MerchantWebhookRepo(db),
-  });
-
-  const unlockService = new UnlockService({
-    unlockRepo: new UnlockRepo(db),
-    merchantWebhookService,
-  });
+  const userRepo = new UserRepo(db);
+  const unlockRepo = new UnlockRepo(db);
+  const merchantRepo = new MerchantRepo(db);
+  const merchantClientFactory = new MerchantClientFactory();
+  const githubClientFactory = new GithubClientFactory();
 
   return {
-    userService,
-    unlockService,
-    githubService,
-    merchantService,
-    connectionService,
+    unlock: {
+      createUnlock: createUnlock({
+        userRepo,
+        unlockRepo,
+        merchantRepo,
+        merchantClientFactory,
+      }),
+      deleteUnlock: deleteUnlock({
+        userRepo,
+        unlockRepo,
+        merchantRepo,
+        merchantClientFactory,
+      }),
+    },
+    github: {
+      getGithubRepositories: getGithubRepositories({
+        githubClientFactory,
+      }),
+    },
+    merchant: {
+      getMerchantProducts: getMerchantProducts({
+        merchantClientFactory,
+      }),
+    },
   };
 });
