@@ -1,100 +1,79 @@
 import type { UnlockRepo } from "@/unlockrepo/unlock/unlock_repo";
-import type { UserRepo } from "@/unlockrepo/user/user_repo";
 import type { MerchantRepo } from "@/unlockrepo/merchant/merchant_repo";
 import type {
   MerchantClientFactory,
   MerchantName,
 } from "@/unlockrepo/merchant/merchant_client";
 import { Connection } from "@/unlockrepo/user/connection";
+import type { UserWithConnections } from "@/unlockrepo/user/user";
+import type { GithubClientFactory } from "@/unlockrepo/github/github_client";
 
 export function createUnlock({
-  userRepo,
   unlockRepo,
   merchantRepo,
   merchantClientFactory,
+  githubClientFactory,
 }: {
-  userRepo: UserRepo;
   unlockRepo: UnlockRepo;
   merchantRepo: MerchantRepo;
+  githubClientFactory: GithubClientFactory;
   merchantClientFactory: MerchantClientFactory;
 }) {
   return async ({
-    userId,
+    user,
     merchantName,
     productId,
     repositoryId,
   }: {
-    userId: string;
+    user: UserWithConnections;
     merchantName: MerchantName;
     productId: string;
     repositoryId: string;
   }) => {
-    const user = await userRepo.findWithConnections(userId);
-    const connectionsByType = Connection.toMapByType(user.connections);
-
-    const githubConnection = connectionsByType.get("github");
-    const merchantConnection = connectionsByType.get(merchantName);
+    const connectionsByName = Connection.toMapByName(user.connections);
+    const githubConnection = connectionsByName.get("github");
+    const merchantConnection = connectionsByName.get(merchantName);
 
     const merchantClient = merchantClientFactory.createClient(
       merchantName,
       merchantConnection.tokens.accessToken
     );
 
-    const unlock = await unlockRepo.create({
-      userId,
+    const githubClient = githubClientFactory.createClient(
+      githubConnection.tokens.accessToken
+    );
+
+    await githubClient.getRepository(repositoryId);
+
+    const [product, repository] = await Promise.all([
+      merchantClient.getProduct(productId),
+      githubClient.getRepository(repositoryId),
+    ]);
+
+    await unlockRepo.create({
+      userId: user.id,
       productId,
       repositoryId,
+      productName: product.name,
+      productURL: product.url,
+      repositoryName: repository.name,
+      repositoryURL: repository.url,
       githubConnectionId: githubConnection.id,
       merchantConnectionId: merchantConnection.id,
     });
 
-    const webhook = await merchantClient.createWebhook("sale");
+    const webhookName = "sale";
 
-    await merchantRepo.createWebhook({
-      userId,
-      unlockId: unlock.id,
+    await merchantRepo.createWebhookOnce({
+      userId: user.id,
       merchantConnectionId: merchantConnection.id,
-      merchantWebhookId: webhook.id,
-      name: webhook.name,
+      name: webhookName,
+      // createWebhook: () => merchantClient.createWebhook(webhookName),
+      createWebhook: () =>
+        Promise.resolve({
+          id: "123456",
+          name: "sale",
+        }),
     });
-  };
-}
-
-export function deleteUnlock({
-  userRepo,
-  unlockRepo,
-  merchantRepo,
-  merchantClientFactory,
-}: {
-  userRepo: UserRepo;
-  unlockRepo: UnlockRepo;
-  merchantRepo: MerchantRepo;
-  merchantClientFactory: MerchantClientFactory;
-}) {
-  return async ({ unlockId, userId }: { unlockId: string; userId: string }) => {
-    const user = await userRepo.findWithConnections(userId);
-    const unlock = await unlockRepo.find(unlockId, userId);
-    const connectionsById = Connection.toMapById(user.connections);
-    const merchantConnection = connectionsById.get(unlock.merchantConnectionId);
-
-    const merchantClient = merchantClientFactory.createClient(
-      merchantConnection.name,
-      merchantConnection.tokens.accessToken
-    );
-
-    const webhooks = await merchantRepo.findWebhooksByUnlockId({
-      userId,
-      unlockId,
-    });
-
-    const deletePromises = webhooks.map(async (webhook) => {
-      await merchantClient.deleteWebhook(webhook.merchantWebhookId);
-      await merchantRepo.deleteWebhook({
-        userId,
-        id: webhook.id,
-      });
-    });
-
-    await Promise.allSettled(deletePromises);
   };
 }

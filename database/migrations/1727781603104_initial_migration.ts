@@ -62,7 +62,11 @@ export async function up(db: Kysely<Schema>): Promise<void> {
       col.references("userConnections.id").onDelete("cascade").notNull()
     )
     .addColumn("productId", "varchar(255)", (col) => col.notNull())
+    .addColumn("productName", "text", (col) => col.notNull())
+    .addColumn("productURL", "text", (col) => col.notNull())
     .addColumn("repositoryId", "varchar(255)", (col) => col.notNull())
+    .addColumn("repositoryName", "text", (col) => col.notNull())
+    .addColumn("repositoryURL", "text", (col) => col.notNull())
     .addColumn("createdAt", "timestamptz", (col) =>
       col.notNull().defaultTo(sql`now()`)
     )
@@ -80,9 +84,6 @@ export async function up(db: Kysely<Schema>): Promise<void> {
       col.references("users.id").onDelete("cascade").notNull()
     )
     .addColumn("name", "varchar(255)", (col) => col.notNull())
-    .addColumn("unlock_id", "uuid", (col) =>
-      col.references("unlocks.id").onDelete("cascade").notNull()
-    )
     .addColumn("merchantConnectionId", "uuid", (col) =>
       col.references("userConnections.id").onDelete("cascade").notNull()
     )

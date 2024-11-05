@@ -17,8 +17,8 @@ export function getMerchantProducts({
     user: UserWithConnections;
     merchantName: MerchantName;
   }) => {
-    const connectionsByType = Connection.toMapByType(user.connections);
-    const merchantConnection = connectionsByType.get(merchantName);
+    const connectionsByName = Connection.toMapByName(user.connections);
+    const merchantConnection = connectionsByName.get(merchantName);
     const merchantClient = await merchantClientFactory.createClient(
       merchantName,
       merchantConnection.tokens.accessToken

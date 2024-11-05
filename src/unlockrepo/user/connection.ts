@@ -1,6 +1,7 @@
 import type { ColumnType, GeneratedAlways, Selectable } from "kysely";
 import { StrictMap } from "@/unlockrepo/utils/strict_map";
 import { Encryptor } from "@/unlockrepo/utils/encryptor";
+import { merchantConfig } from "@/config/merchant_config";
 
 export type ConnectionName = "gumroad" | "lemonsqueezy" | "github";
 
@@ -32,13 +33,19 @@ function withDecryptedTokens(connection: Connection<string>) {
   throw new Error("Failed to decrypt connection tokens");
 }
 
+export function isMerchant(merchantIntegrations: string[]) {
+  return (connection: Connection<ConnectionTokens>) => {
+    return merchantIntegrations.includes(connection.name);
+  };
+}
+
 function toMapById(connections: Connection<ConnectionTokens>[]) {
   return new StrictMap(
     connections.map((connection) => [connection.id, connection])
   );
 }
 
-function toMapByType(connections: Connection<ConnectionTokens>[]) {
+function toMapByName(connections: Connection<ConnectionTokens>[]) {
   return new StrictMap(
     connections.map((connection) => [connection.name, connection])
   );
@@ -46,6 +53,7 @@ function toMapByType(connections: Connection<ConnectionTokens>[]) {
 
 export const Connection = {
   toMapById,
-  toMapByType,
+  toMapByName,
   withDecryptedTokens,
+  isMerchant: isMerchant(Object.keys(merchantConfig.merchantIntegrations)),
 };

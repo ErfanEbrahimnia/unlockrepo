@@ -3,12 +3,6 @@ import { env } from "@/config/env";
 import { HTTPClient } from "@/unlockrepo/http_client";
 import type { MerchantClient } from "@/unlockrepo/merchant/merchant_client";
 import type { MerchantWebhookName } from "@/unlockrepo/merchant/merchant_webhook";
-import type {
-  GumroadDeletedResourceSubscriptionResponse,
-  GumroadProductResponse,
-  GumroadResourceSubscriptionResponse,
-  GumroadResponse,
-} from "./gumroad_respones";
 
 export class GumroadClient implements MerchantClient {
   private httpClient: HTTPClient;
@@ -36,7 +30,7 @@ export class GumroadClient implements MerchantClient {
   }
 
   public async getProducts() {
-    const response = await this.httpClient.get<GumroadProductResponse>({
+    const response = await this.httpClient.get<GumroadResponse>({
       url: `products/`,
       searchParams: { access_token: this.accessToken },
     });
@@ -49,23 +43,52 @@ export class GumroadClient implements MerchantClient {
           z.object({
             id: z.string(),
             name: z.string(),
+            short_url: z.string().url(),
           })
         ),
       })
       .parse(response);
 
-    return products;
+    return products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      url: product.short_url,
+    }));
+  }
+
+  public async getProduct(id: string) {
+    const response = await this.httpClient.get<GumroadResponse>({
+      url: `products/${id}`,
+      searchParams: { access_token: this.accessToken },
+    });
+
+    this.validateResponse(response);
+
+    const { product } = z
+      .object({
+        product: z.object({
+          id: z.string(),
+          name: z.string(),
+          short_url: z.string().url(),
+        }),
+      })
+      .parse(response);
+
+    return {
+      id: product.id,
+      name: product.name,
+      url: product.short_url,
+    };
   }
 
   public async getActiveWebhooks(name: MerchantWebhookName) {
-    const response =
-      await this.httpClient.get<GumroadResourceSubscriptionResponse>({
-        url: `resource_subscriptions/`,
-        searchParams: {
-          access_token: this.accessToken,
-          resource_name: name,
-        },
-      });
+    const response = await this.httpClient.get<GumroadResponse>({
+      url: `resource_subscriptions/`,
+      searchParams: {
+        access_token: this.accessToken,
+        resource_name: name,
+      },
+    });
 
     this.validateResponse(response);
 
@@ -87,16 +110,15 @@ export class GumroadClient implements MerchantClient {
   }
 
   public async createWebhook(name: MerchantWebhookName) {
-    const response =
-      await this.httpClient.put<GumroadResourceSubscriptionResponse>({
-        url: "resource_subscriptions/",
-        json: {
-          access_token: this.accessToken,
-          resource_name: name,
-          post_url: new URL("/api/connections/gumroad/webhook", env.WEBHOOK_URL)
-            .href,
-        },
-      });
+    const response = await this.httpClient.put<GumroadResponse>({
+      url: "resource_subscriptions/",
+      json: {
+        access_token: this.accessToken,
+        resource_name: name,
+        post_url: new URL("/api/connections/gumroad/webhook", env.WEBHOOK_URL)
+          .href,
+      },
+    });
 
     this.validateResponse(response);
 
@@ -116,19 +138,29 @@ export class GumroadClient implements MerchantClient {
   }
 
   public async deleteWebhook(resourceId: string) {
-    const response =
-      await this.httpClient.delete<GumroadDeletedResourceSubscriptionResponse>({
-        url: `resource_subscriptions/${resourceId}`,
-        searchParams: { access_token: this.accessToken },
-      });
+    const response = await this.httpClient.delete<GumroadResponse>({
+      url: `resource_subscriptions/${resourceId}`,
+      searchParams: { access_token: this.accessToken },
+    });
 
     this.validateResponse(response);
   }
 
-  private validateResponse(response: GumroadResponse<unknown, string>) {
+  private validateResponse(response: GumroadResponse) {
     if (response.success) {
       return response;
     }
     throw new Error(response.message);
   }
 }
+
+export type GumroadResponse =
+  | {
+      success: true;
+      [key: string]: any;
+    }
+  | {
+      success: false;
+      message: string;
+      [key: string]: any;
+    };

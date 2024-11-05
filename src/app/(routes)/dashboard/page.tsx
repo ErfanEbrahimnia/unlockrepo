@@ -1,51 +1,83 @@
-import { Suspense } from "react";
-import {
-  getSessionOrRedirect,
-  invalidateSession,
-} from "@/app/_libs/auth/session";
-import { createServices } from "@/app/_libs/services";
-import { DashboardView } from "./dashboard_view";
+import Link from "next/link";
+import { getSessionOrRedirect } from "@/app/_libs/auth/session";
+import { createAppServices } from "@/unlockrepo/app_services";
+import { Button } from "@/app/_components/ui/button";
 import { Connection } from "@/unlockrepo/user/connection";
+import { cn } from "@/app/_libs/utils";
+import type { UserWithConnections } from "@/unlockrepo/user/user";
+import { ConnectMerchantDialog } from "./connect_merchant_dialog";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/app/_components/ui/card";
+import { Unlocks } from "./unlocks";
 
 export default async function Dashboard() {
   const { user } = await getSessionOrRedirect();
 
-  const services = createServices();
+  const services = createAppServices();
+  const unlocks = await services.unlock.repo.findByUserId(user.id);
 
-  const repositoriesPromise = services.github.getGithubRepositories({ user });
-  const productsPromise = Connection.toMapByType(user.connections).has(
-    "gumroad"
-  )
-    ? services.merchant.getMerchantProducts({
-        user,
-        merchantName: "gumroad",
-      })
-    : Promise.resolve([]);
+  if (unlocks.length === 0) {
+    return (
+      <UnlocksPlaceholder title="No unlocked repositories">
+        <AddRepositoryButton user={user} />
+      </UnlocksPlaceholder>
+    );
+  }
 
   return (
-    <div>
-      <main>
-        {user?.username}
-        <br />
-        <a href="/api/connections/gumroad">Gumroad</a>
-        <form
-          action={async () => {
-            "use server";
-
-            await invalidateSession();
-          }}
-        >
-          <button type="submit">Logout</button>
-        </form>
-        <hr className="my-4" />
-        <Suspense fallback={"loading"}>
-          <DashboardView
-            productsPromise={productsPromise}
-            repositoriesPromise={repositoriesPromise}
-          />
-        </Suspense>
-      </main>
-      <footer></footer>
+    <div className="w-full">
+      <div className="flex justify-between mb-6">
+        <h1 className="text-2xl font-semibold">Unlocks</h1>
+        <AddRepositoryButton user={user} />
+      </div>
+      <Unlocks
+        username={user.username}
+        unlocks={unlocks.map((unlock) => ({
+          id: unlock.id,
+          repositoryName: unlock.repositoryName,
+          repositoryURL: unlock.repositoryURL,
+          productName: unlock.productName,
+          productURL: unlock.productURL,
+          createdAt: unlock.createdAt,
+        }))}
+      />
     </div>
+  );
+}
+
+function AddRepositoryButton({ user }: { user: UserWithConnections }) {
+  const hasConnectedMerchants = user.connections.some((connection) =>
+    Connection.isMerchant(connection)
+  );
+
+  return hasConnectedMerchants ? (
+    <Button asChild>
+      <Link href="/dashboard/new">Add Repository</Link>
+    </Button>
+  ) : (
+    <ConnectMerchantDialog trigger={<Button>Add Repository</Button>} />
+  );
+}
+
+function UnlocksPlaceholder({
+  title,
+  className,
+  children,
+}: {
+  title: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card className={cn("lg:py-10", className)}>
+      <CardHeader className="text-center">
+        <CardTitle className="text-2xl">{title}</CardTitle>
+      </CardHeader>
+      <CardContent className="text-center">{children}</CardContent>
+    </Card>
   );
 }

@@ -6,7 +6,6 @@ export interface MerchantWebhookTable {
   id: GeneratedAlways<string>;
   name: MerchantWebhookName;
   userId: string;
-  unlockId: string;
   merchantConnectionId: string;
   merchantWebhookId: string;
   updatedAt: ColumnType<Date, never, string>;

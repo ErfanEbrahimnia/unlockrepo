@@ -8,8 +8,8 @@ export function getGithubRepositories({
   githubClientFactory: GithubClientFactory;
 }) {
   return async ({ user }: { user: UserWithConnections }) => {
-    const connectionsByType = Connection.toMapByType(user.connections);
-    const githubConnection = connectionsByType.get("github");
+    const connectionsByName = Connection.toMapByName(user.connections);
+    const githubConnection = connectionsByName.get("github");
     const githubClient = await githubClientFactory.createClient(
       githubConnection.tokens.accessToken
     );

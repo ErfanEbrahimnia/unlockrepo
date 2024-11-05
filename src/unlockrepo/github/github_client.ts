@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { Octokit } from "octokit";
 
 export class GithubClientFactory {
@@ -13,6 +14,7 @@ export class GithubClient {
 
   constructor({ accessToken }: { accessToken: string }) {
     this.accessToken = accessToken;
+
     this.client = new Octokit({ auth: this.accessToken });
   }
 
@@ -40,10 +42,29 @@ export class GithubClient {
       },
     });
 
-    return data.map(({ id, name }) => ({
+    return data.map(({ id, name, html_url }) => ({
       id: String(id),
       name,
+      url: html_url,
     }));
+  }
+
+  async getRepository(id: string): Promise<GithubRepository> {
+    const { data } = await this.client.request("GET /repositories/:id", { id });
+
+    const parsed = z
+      .object({
+        id: z.coerce.string(),
+        name: z.string(),
+        html_url: z.string().url(),
+      })
+      .parse(data);
+
+    return {
+      id: parsed.id,
+      name: parsed.name,
+      url: parsed.html_url,
+    };
   }
 
   async inviteToRepo({
@@ -66,4 +87,5 @@ export class GithubClient {
 export interface GithubRepository {
   id: string;
   name: string;
+  url: string;
 }

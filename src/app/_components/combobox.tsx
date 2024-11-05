@@ -8,9 +8,9 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
+  CommandInput,
 } from "@/app/_components/ui/command";
 import {
   Popover,
@@ -26,11 +26,21 @@ type Item = {
 export function Combobox({
   items,
   value,
+  disabled = false,
+  placeholder = "",
+  searchPlaceholder = "Search...",
+  emptyMessage = "",
+  triggerClassName,
   onChange,
 }: {
   items: Item[];
   value?: string;
-  onChange: (value: string) => void;
+  disabled?: boolean;
+  placeholder?: string;
+  searchPlaceholder?: string;
+  emptyMessage?: string;
+  triggerClassName?: string;
+  onChange: (value: string, label: string) => void;
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -40,22 +50,23 @@ export function Combobox({
         <Button
           variant="outline"
           role="combobox"
+          disabled={disabled}
           aria-expanded={open}
-          className="w-[300px] justify-between"
+          className={cn("justify-between", triggerClassName)}
         >
           <div className="overflow-hidden text-ellipsis whitespace-nowrap">
             {value
               ? items.find((item) => item.value === value)?.label
-              : "Select framework..."}
+              : placeholder}
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0">
+      <PopoverContent className="p-0 w-[--radix-popover-trigger-width]">
         <Command>
-          <CommandInput placeholder="Search framework..." />
+          <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>{emptyMessage}</CommandEmpty>
             <CommandGroup>
               {items.map((item) => (
                 <CommandItem
@@ -63,7 +74,7 @@ export function Combobox({
                   value={item.value}
                   keywords={[item.label]}
                   onSelect={(currentValue) => {
-                    onChange(currentValue === value ? "" : currentValue);
+                    onChange(currentValue, item.label);
                     setOpen(false);
                   }}
                 >

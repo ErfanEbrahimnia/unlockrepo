@@ -48,5 +48,5 @@ export async function AuthButton() {
 }
 
 export function AuthButtonFallback() {
-  return <Button disabled>loading...</Button>;
+  return <div className="text-sm font-semibold">loading...</div>;
 }

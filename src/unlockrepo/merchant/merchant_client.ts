@@ -3,7 +3,7 @@ import type { MerchantWebhookName } from "./merchant_repo";
 
 export type MerchantName = "gumroad" | "lemonsqueezy";
 
-type MerchantClientWebhook = {
+export type MerchantClientWebhook = {
   id: string;
   name: MerchantWebhookName;
 };
@@ -11,10 +11,13 @@ type MerchantClientWebhook = {
 export interface MerchantProduct {
   id: string;
   name: string;
+  url: string;
 }
 
 export interface MerchantClient {
   getProducts(): Promise<MerchantProduct[]>;
+
+  getProduct(id: string): Promise<MerchantProduct>;
 
   getActiveWebhooks(
     name: MerchantWebhookName
@@ -26,7 +29,10 @@ export interface MerchantClient {
 }
 
 export class MerchantClientFactory {
-  createClient(name: MerchantName | (string & {}), accessToken: string) {
+  createClient(
+    name: MerchantName | (string & {}),
+    accessToken: string
+  ): MerchantClient {
     switch (name) {
       case "gumroad":
         return GumroadClient.create(accessToken);

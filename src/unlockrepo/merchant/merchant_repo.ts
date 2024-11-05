@@ -1,56 +1,61 @@
 import type { Database } from "@/database/client";
+import type { MerchantClientWebhook } from "./merchant_client";
+import type { MerchantWebhook, MerchantWebhookName } from "./merchant_webhook";
 
 export class MerchantRepo {
   public constructor(private db: Database) {}
 
-  public async createWebhook({
+  public async createWebhookOnce({
     userId,
-    unlockId,
-    merchantWebhookId,
-    name,
     merchantConnectionId,
-  }: Omit<
-    MerchantWebhook,
-    "id" | "createdAt" | "updatedAt"
-  >): Promise<MerchantWebhook> {
-    return this.db
-      .insertInto("merchantWebhooks")
-      .values({
-        name,
-        userId,
-        unlockId,
-        merchantWebhookId,
-        merchantConnectionId,
-      })
-      .returningAll()
-      .executeTakeFirstOrThrow();
-  }
-
-  async findWebhooksByUnlockId({
-    userId,
-    unlockId,
+    name,
+    createWebhook,
   }: {
     userId: string;
-    unlockId: string;
-  }): Promise<MerchantWebhook[]> {
-    return this.db
-      .selectFrom("merchantWebhooks")
-      .where((eb) =>
-        eb.and({
+    merchantConnectionId: string;
+    name: MerchantWebhookName;
+    createWebhook: () => Promise<MerchantClientWebhook>;
+  }): Promise<MerchantWebhook> {
+    return this.db.transaction().execute(async (trx) => {
+      const webhook = await trx
+        .selectFrom("merchantWebhooks")
+        .selectAll()
+        .where((eb) =>
+          eb.and([
+            eb("userId", "=", userId),
+            eb("name", "=", name),
+            eb("merchantConnectionId", "=", merchantConnectionId),
+          ])
+        )
+        .executeTakeFirst();
+
+      if (webhook) {
+        return webhook;
+      }
+
+      const clientWebhook = await createWebhook();
+
+      return trx
+        .insertInto("merchantWebhooks")
+        .values({
           userId,
-          unlockId,
+          merchantConnectionId,
+          name,
+          merchantWebhookId: clientWebhook.id,
         })
-      )
-      .selectAll()
-      .execute();
+        .returningAll()
+        .executeTakeFirstOrThrow();
+    });
   }
 
   async deleteWebhook({
     id,
     userId,
+    name,
   }: {
     id: string;
     userId: string;
+    name: MerchantWebhookName;
   }): Promise<void> {
     await this.db
       .deleteFrom("merchantWebhooks")
@@ -58,21 +63,9 @@ export class MerchantRepo {
         eb.and({
           id,
           userId,
+          name,
         })
       )
       .execute();
   }
-}
-
-export type MerchantWebhookName = "sale" | "refund";
-
-export interface MerchantWebhook {
-  id: string;
-  name: MerchantWebhookName;
-  userId: string;
-  unlockId: string;
-  merchantWebhookId: string;
-  merchantConnectionId: string;
-  createdAt: Date;
-  updatedAt: Date;
 }

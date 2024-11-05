@@ -6,7 +6,11 @@ export interface UnlockTable {
   githubConnectionId: string;
   merchantConnectionId: string;
   productId: string;
+  productName: string;
+  productURL: string;
   repositoryId: string;
+  repositoryName: string;
+  repositoryURL: string;
   updatedAt: ColumnType<Date, never, string>;
   createdAt: ColumnType<Date, string | undefined, never>;
 }
