@@ -1,5 +1,5 @@
 import { GumroadClient } from "@/unlockrepo/gumroad/gumroad_client";
-import type { MerchantWebhookName } from "./merchant_repo";
+import type { MerchantWebhookName } from "./merchant_webhook";
 
 export type MerchantName = "gumroad" | "lemonsqueezy";
 
@@ -23,19 +23,26 @@ export interface MerchantClient {
     name: MerchantWebhookName
   ): Promise<MerchantClientWebhook[]>;
 
-  createWebhook(name: MerchantWebhookName): Promise<MerchantClientWebhook>;
+  createWebhook(
+    name: MerchantWebhookName,
+    unlockId: string
+  ): Promise<MerchantClientWebhook>;
 
   deleteWebhook(webhookId: string): Promise<void>;
 }
 
 export class MerchantClientFactory {
+  constructor() {}
+
   createClient(
     name: MerchantName | (string & {}),
     accessToken: string
   ): MerchantClient {
     switch (name) {
       case "gumroad":
-        return GumroadClient.create(accessToken);
+        return GumroadClient.create({
+          accessToken,
+        });
       default:
         throw new Error(`Merchant with name "${name}" is not defined`);
     }

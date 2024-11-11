@@ -54,7 +54,6 @@ export const gumroad = new Gumroad(
   process.env.GUMROAD_CLIENT_ID!,
   process.env.GUMROAD_CLIENT_SECRET!,
   {
-    redirectURI: new URL("/api/connections/gumroad/callback", env.VERCEL_URL)
-      .href,
+    redirectURI: new URL("/api/connections/gumroad/callback", env.APP_URL).href,
   }
 );

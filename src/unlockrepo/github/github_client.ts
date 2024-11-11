@@ -3,7 +3,9 @@ import { Octokit } from "octokit";
 
 export class GithubClientFactory {
   createClient(accessToken: string) {
-    return new GithubClient({ accessToken });
+    return new GithubClient({
+      accessToken,
+    });
   }
 }
 
@@ -30,6 +32,7 @@ export class GithubClient {
     return {
       id: String(data.id),
       login: data.login,
+      avatarURL: data.avatar_url,
     };
   }
 
@@ -80,6 +83,7 @@ export class GithubClient {
       username: userName,
       repo: repoName,
       owner: ownerName,
+      permission: "pull",
     });
   }
 }

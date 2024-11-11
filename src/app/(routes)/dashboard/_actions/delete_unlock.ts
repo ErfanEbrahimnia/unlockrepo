@@ -15,7 +15,7 @@ export async function deleteUnlock(params: z.infer<typeof unlockDeleteSchema>) {
   const { user } = await getSessionOrThrow();
   const services = createAppServices();
 
-  await services.unlock.repo.remove(unlockId, user.id);
+  await services.unlock.deleteUnlock({ user, unlockId });
 
   revalidatePath("/dashboard");
 }

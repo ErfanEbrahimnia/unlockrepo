@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { HeaderBar } from "@/app/_components/header_bar";
 import { Container } from "@/app/_components/ui/container";
 
 export const metadata: Metadata = {
@@ -15,10 +14,7 @@ export default function MarketingLayout({
   return (
     <div>
       <main>
-        <Container>
-          <HeaderBar />
-          {children}
-        </Container>
+        <Container>{children}</Container>
       </main>
       <footer></footer>
     </div>

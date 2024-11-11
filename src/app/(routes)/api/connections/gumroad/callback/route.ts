@@ -4,8 +4,10 @@ import { db } from "@/database/client";
 import { gumroad } from "@/app/_libs/connections/gumroad_provider";
 import { getSessionOrThrow } from "@/app/_libs/auth/session";
 import { Encryptor } from "@/unlockrepo/utils/encryptor";
+import { createAppServices } from "@/unlockrepo/app_services";
 
 export async function GET(request: Request): Promise<Response> {
+  const services = createAppServices();
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
@@ -58,21 +60,29 @@ export async function GET(request: Request): Promise<Response> {
       })
       .execute();
 
+    services.logger.info("Connected to Gumroad", {
+      userId: user.id,
+      username: user.username,
+      connectionId: gumroadUser.id,
+    });
+
     return new Response(null, {
       status: 302,
       headers: {
         Location: "/dashboard",
       },
     });
-  } catch (error) {
-    console.error(error);
-
+  } catch (error: unknown) {
     // the specific error message depends on the provider
     if (error instanceof OAuth2RequestError) {
       // invalid code
       return new Response(null, {
         status: 400,
       });
+    }
+
+    if (error instanceof Error) {
+      services.logger.error("Failed to connect to Gumroad", error);
     }
 
     return new Response(null, {

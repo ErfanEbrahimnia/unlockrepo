@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@/app/_components/ui/button";
 import {
@@ -14,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/app/_components/ui/dialog";
 import { cn } from "@/app/_libs/utils";
+import { Link } from "@/app/_components/ui/link";
 
 export function ConnectMerchantDialog({
   trigger,

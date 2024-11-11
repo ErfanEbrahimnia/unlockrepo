@@ -1,32 +1,37 @@
-import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/app/_components/ui/button";
+import { AuthButton, AuthButtonFallback } from "@/app/_components/auth_button";
+import { Link } from "@/app/_components/ui/link";
+import { cn } from "@/app/_libs/utils";
+import { Suspense } from "react";
 
-export function Hero() {
+export function Hero({ className }: { className?: string }) {
   return (
-    <div className="lg:grid lg:grid-cols-2 lg:gap-8 justify-center items-center h-[450px]">
-      <div>
-        <h1 className="text-4xl font-bold mb-4">
+    <div
+      className={cn(
+        "flex flex-col justify-center items-center h-screen",
+        className
+      )}
+    >
+      <div className="max-w-[650px] text-center">
+        <div className="font-bold text-xl md:text-2xl mb-4 md:mb-8">
+          🔐 UnlockRepo
+        </div>
+        <h1 className="text-2xl md:text-4xl font-bold mb-3">
           Automate Github Repository Access
         </h1>
-        <p className="text-lg mb-3">
+        <p className="md:text-lg mb-6">
           UnlockRepo automates the process of granting access to your private
           repositories once a purchase is made on Gumroad
         </p>
-        <Button asChild size="lg">
-          <Link href="/dashboard">Get Started</Link>
-        </Button>
-      </div>
-      <div className="flex lg:justify-center pointer-events-none">
-        <div className="flex size-[370px] justify-center items-center bg-amber-50 rounded-3xl shadow-amber-200/60 shadow">
-          <div className="flex size-[310px] justify-center items-center bg-amber-100/50 rounded-3xl shadow-amber-300/60 shadow">
-            <Image
-              alt=""
-              src="/hero_illustration.png"
-              width={140}
-              height={191}
+        <div className="flex justify-center">
+          <Suspense fallback={<AuthButtonFallback />}>
+            <AuthButton
+              prepend={
+                <Link href="/dashboard" className="font-semibold text-sm">
+                  Dashboard
+                </Link>
+              }
             />
-          </div>
+          </Suspense>
         </div>
       </div>
     </div>

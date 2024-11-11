@@ -27,9 +27,7 @@ export const getSessionOrRedirect = cache(
   }
 );
 
-export async function invalidateSession() {
-  const { session } = await getSessionOrThrow();
-
+export async function invalidateSession(session: Session) {
   await lucia.invalidateSession(session.id);
 
   const sessionCookie = lucia.createBlankSessionCookie();

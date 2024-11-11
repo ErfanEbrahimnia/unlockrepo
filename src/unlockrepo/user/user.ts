@@ -4,6 +4,7 @@ import { Connection, type ConnectionTokens } from "./connection";
 export interface UserTable {
   id: GeneratedAlways<string>;
   username: string;
+  avatarURL: string;
   updatedAt: ColumnType<Date, never, string>;
   createdAt: ColumnType<Date, string | undefined, never>;
 }
@@ -23,6 +24,15 @@ function marshalWithConnections(user: User, connections: Connection<string>[]) {
   };
 }
 
+function getResizedAvatarURL(user: User, size: number = 100): string {
+  const urlObj = new URL(user.avatarURL);
+
+  urlObj.searchParams.set("size", size.toString());
+
+  return urlObj.toString();
+}
+
 export const User = {
   marshalWithConnections,
+  getResizedAvatarURL,
 };

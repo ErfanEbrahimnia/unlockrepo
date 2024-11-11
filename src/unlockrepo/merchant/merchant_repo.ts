@@ -5,6 +5,22 @@ import type { MerchantWebhook, MerchantWebhookName } from "./merchant_webhook";
 export class MerchantRepo {
   public constructor(private db: Database) {}
 
+  public async findWebhooksByConnectionId(
+    merchantConnectionId: string,
+    userId: string
+  ): Promise<MerchantWebhook[]> {
+    return this.db
+      .selectFrom("merchantWebhooks")
+      .selectAll()
+      .where((eb) =>
+        eb.and([
+          eb("merchantConnectionId", "=", merchantConnectionId),
+          eb("userId", "=", userId),
+        ])
+      )
+      .execute();
+  }
+
   public async createWebhookOnce({
     userId,
     merchantConnectionId,
@@ -48,22 +64,13 @@ export class MerchantRepo {
     });
   }
 
-  async deleteWebhook({
-    id,
-    userId,
-    name,
-  }: {
-    id: string;
-    userId: string;
-    name: MerchantWebhookName;
-  }): Promise<void> {
+  async deleteWebhook(id: string, userId: string): Promise<void> {
     await this.db
       .deleteFrom("merchantWebhooks")
       .where((eb) =>
         eb.and({
           id,
           userId,
-          name,
         })
       )
       .execute();

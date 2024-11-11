@@ -30,6 +30,7 @@ export function createClient<DatabaseSchema = any>({ pool }: { pool: Pool }) {
         specialCaseMap: {
           product_url: "productURL",
           repository_url: "repositoryURL",
+          avatar_url: "avatarURL",
         },
       }),
     ],

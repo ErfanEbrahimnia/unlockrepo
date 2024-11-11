@@ -4,8 +4,10 @@ import { github, lucia } from "@/app/_libs/auth/lucia";
 import { db } from "@/database/client";
 import { GithubClient } from "@/unlockrepo/github/github_client";
 import { UserRepo } from "@/unlockrepo/user/user_repo";
+import { createAppServices } from "@/unlockrepo/app_services";
 
 export async function GET(request: Request): Promise<Response> {
+  const services = createAppServices();
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
@@ -35,6 +37,11 @@ export async function GET(request: Request): Promise<Response> {
         sessionCookie.attributes
       );
 
+      services.logger.info("User exists. Created new session", {
+        userId: existingUser.id,
+        username: existingUser.username,
+      });
+
       return new Response(null, {
         status: 302,
         headers: {
@@ -45,6 +52,7 @@ export async function GET(request: Request): Promise<Response> {
 
     const user = await userRepo.createUserWithConnection({
       username: githubUser.login,
+      avatarURL: githubUser.avatarURL,
       connectionId: githubUser.id,
       connectionName: "github",
       connectionTokens: tokens,
@@ -59,6 +67,11 @@ export async function GET(request: Request): Promise<Response> {
       sessionCookie.attributes
     );
 
+    services.logger.info("New user created", {
+      userId: user.id,
+      username: user.username,
+    });
+
     return new Response(null, {
       status: 302,
       headers: {
@@ -66,7 +79,9 @@ export async function GET(request: Request): Promise<Response> {
       },
     });
   } catch (error) {
-    console.error(error);
+    if (error instanceof Error) {
+      services.logger.error("Signup failed", error);
+    }
 
     // the specific error message depends on the provider
     if (error instanceof OAuth2RequestError) {

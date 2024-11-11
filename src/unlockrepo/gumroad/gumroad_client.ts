@@ -3,13 +3,14 @@ import { env } from "@/config/env";
 import { HTTPClient } from "@/unlockrepo/http_client";
 import type { MerchantClient } from "@/unlockrepo/merchant/merchant_client";
 import type { MerchantWebhookName } from "@/unlockrepo/merchant/merchant_webhook";
+import { Encryptor } from "@/unlockrepo/utils/encryptor";
 
 export class GumroadClient implements MerchantClient {
   private httpClient: HTTPClient;
 
   private accessToken: string;
 
-  public static create(accessToken: string) {
+  public static create({ accessToken }: { accessToken: string }) {
     return new GumroadClient({
       accessToken,
       httpClient: new HTTPClient({
@@ -109,14 +110,22 @@ export class GumroadClient implements MerchantClient {
     }));
   }
 
-  public async createWebhook(name: MerchantWebhookName) {
+  public async createWebhook(name: MerchantWebhookName, unlockId: string) {
+    const verification = Encryptor.encryptJSON({ unlockId });
+    const webhookURL = new URL(
+      "/api/connections/gumroad/webhook",
+      env.WEBHOOK_URL
+    ).href;
+    const searchParams = new URLSearchParams({ verification });
+    const webhookURLWithParams = `${webhookURL}?${searchParams.toString()}`;
+
     const response = await this.httpClient.put<GumroadResponse>({
       url: "resource_subscriptions/",
       json: {
         access_token: this.accessToken,
         resource_name: name,
-        post_url: new URL("/api/connections/gumroad/webhook", env.WEBHOOK_URL)
-          .href,
+        // The post_url has a limit of 231 characters
+        post_url: webhookURLWithParams,
       },
     });
 

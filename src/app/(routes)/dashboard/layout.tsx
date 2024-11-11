@@ -16,7 +16,7 @@ export default function DashboardLayout({
   return (
     <div>
       <main>
-        <div className="border-b mb-6">
+        <div className="mb-6">
           <Container>
             <HeaderBar />
           </Container>

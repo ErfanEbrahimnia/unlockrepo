@@ -11,11 +11,13 @@ export class UserRepo {
 
   async createUserWithConnection({
     username,
+    avatarURL,
     connectionId,
     connectionName,
     connectionTokens,
   }: {
     username: string;
+    avatarURL: string;
     connectionId: string;
     connectionName: ConnectionName;
     connectionTokens: ConnectionTokens;
@@ -25,6 +27,7 @@ export class UserRepo {
         .insertInto("users")
         .values({
           username,
+          avatarURL,
         })
         .returningAll()
         .executeTakeFirstOrThrow();
@@ -54,6 +57,7 @@ export class UserRepo {
       .select([
         "users.id",
         "users.username",
+        "users.avatarURL",
         "users.createdAt",
         "users.updatedAt",
       ])

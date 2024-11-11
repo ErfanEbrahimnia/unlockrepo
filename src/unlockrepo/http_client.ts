@@ -1,4 +1,4 @@
-import ky, { HTTPError, type KyInstance, type SearchParamsOption } from "ky";
+import ky, { type KyInstance, type SearchParamsOption } from "ky";
 
 export interface HTTPRequestOptions {
   url: string;
@@ -58,5 +58,3 @@ export class HTTPClient {
     headers,
   });
 }
-
-export const isHTTPError = (error: unknown) => error instanceof HTTPError;

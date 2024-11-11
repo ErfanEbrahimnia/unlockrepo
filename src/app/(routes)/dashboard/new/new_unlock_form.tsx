@@ -1,10 +1,10 @@
 "use client";
 
 import { use, useTransition } from "react";
-import Link from "next/link";
 import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Github, LoaderCircle, ShoppingCart } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -20,7 +20,9 @@ import { Button } from "@/app/_components/ui/button";
 import { unlockCreateSchema } from "./schemas";
 import type { GithubRepository } from "@/unlockrepo/github/github_client";
 import type { MerchantProduct } from "@/unlockrepo/merchant/merchant_client";
-import { Github, LoaderCircle, ShoppingCart } from "lucide-react";
+import { Link } from "@/app/_components/ui/link";
+import { withErrorHandling } from "@/app/_libs/actions";
+import { toast } from "@/app/_components/ui/sonner";
 
 export function NewUnlockForm({
   repositoriesPromise,
@@ -41,20 +43,25 @@ export function NewUnlockForm({
     },
   });
 
-  function onSubmit(values: z.infer<typeof unlockCreateSchema>) {
-    startTransition(() => createUnlock(values));
+  async function onSubmit(values: z.infer<typeof unlockCreateSchema>) {
+    startTransition(() =>
+      withErrorHandling(
+        createUnlock(values).then(() => toast.success("New Unlock created"))
+      )
+    );
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-5">Unlock a new repository</h1>
+      <h1 className="text-2xl font-semibold mb-5 text-center">
+        Unlock a new repository
+      </h1>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-4 w-[320px]"
         >
           <FormField
-            disabled={pending}
             control={form.control}
             name="productId"
             render={({ field }) => (
@@ -67,7 +74,7 @@ export function NewUnlockForm({
                   <Combobox
                     triggerClassName="w-full"
                     value={field.value}
-                    disabled={field.disabled}
+                    disabled={pending}
                     placeholder="Select a product"
                     emptyMessage="No products available"
                     onChange={field.onChange}
@@ -87,7 +94,6 @@ export function NewUnlockForm({
           />
           <UnlockDivider />
           <FormField
-            disabled={pending}
             control={form.control}
             name="repositoryId"
             render={({ field }) => (
@@ -100,7 +106,7 @@ export function NewUnlockForm({
                   <Combobox
                     triggerClassName="w-full"
                     value={field.value}
-                    disabled={field.disabled}
+                    disabled={pending}
                     placeholder="Select a Github repository"
                     emptyMessage="No Github repositories available"
                     onChange={field.onChange}
