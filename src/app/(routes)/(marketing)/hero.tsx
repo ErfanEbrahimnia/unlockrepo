@@ -1,7 +1,7 @@
+import { Suspense } from "react";
 import { AuthButton, AuthButtonFallback } from "@/app/_components/auth_button";
 import { Link } from "@/app/_components/ui/link";
 import { cn } from "@/app/_libs/utils";
-import { Suspense } from "react";
 
 export function Hero({ className }: { className?: string }) {
   return (
@@ -12,9 +12,7 @@ export function Hero({ className }: { className?: string }) {
       )}
     >
       <div className="max-w-[650px] text-center">
-        <div className="font-bold text-xl md:text-2xl mb-4 md:mb-8">
-          🔐 UnlockRepo
-        </div>
+        <div className="font-bold text-xl md:text-2xl mb-4">🔐 UnlockRepo</div>
         <h1 className="text-2xl md:text-4xl font-bold mb-3">
           Automate Github Repository Access
         </h1>

@@ -16,8 +16,12 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     TOKEN_ENCRYPTION_KEY: process.env.TOKEN_ENCRYPTION_KEY,
-    APP_URL: process.env.APP_URL ?? process.env.VERCEL_URL,
-    WEBHOOK_URL: process.env.WEBHOOK_URL ?? process.env.VERCEL_URL,
+    APP_URL:
+      process.env.APP_URL ??
+      `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`,
+    WEBHOOK_URL:
+      process.env.WEBHOOK_URL ??
+      `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`,
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
     GUMROAD_CLIENT_ID: process.env.GUMROAD_CLIENT_ID,

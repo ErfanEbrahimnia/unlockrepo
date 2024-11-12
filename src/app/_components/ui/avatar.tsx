@@ -58,7 +58,7 @@ function FullAvatar({
 }) {
   return (
     <Avatar className={className}>
-      <AvatarImage src={src} />
+      <AvatarImage alt="" src={src} />
       <AvatarFallback>{fallback}</AvatarFallback>
     </Avatar>
   );
