@@ -1,4 +1,6 @@
-![unlockrepo_header](https://github.com/user-attachments/assets/2e5390c6-4a21-40a1-9e21-c5c63e369feb)
+<p align="center">
+  <img alt="" width="200" height="275" src="https://github.com/user-attachments/assets/1bfc078f-effb-4c6e-8e6e-f0d33a6e38c4"/>
+</p>
 
 # 🔐 UnlockRepo
 
@@ -29,7 +31,7 @@ Deploying UnlockRepo is straightforward:
 5. Register a [GitHub OAuth application](https://github.com/settings/developers).
 6. Refer to the [.env.example](https://github.com/ErfanEbrahimnia/unlockrepo/blob/main/.env.example) file and add the environment keys in Vercel.
 
-## ⚙️ Running UnlockRepo Locally
+## ⚙️ Running Locally
 
 To run UnlockRepo locally, make sure you have Node.js > 18.20.4 and Postgres installed.
 
