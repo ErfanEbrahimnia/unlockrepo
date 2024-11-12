@@ -2,7 +2,7 @@
 
 # 🔐 UnlockRepo
 
-A simple tool to automate granting access to your private repositories after a purchase is made on Gumroad.
+A simple tool to automate and monetize granting access to your private repositories after a purchase is made on Gumroad.
 
 [Live demo](https://unlockrepo.com)
 

@@ -14,7 +14,7 @@ export function Hero({ className }: { className?: string }) {
       <div className="max-w-[650px] text-center">
         <div className="font-bold text-xl md:text-2xl mb-4">🔐 UnlockRepo</div>
         <h1 className="text-2xl md:text-4xl font-bold mb-3">
-          Automate Github Repository Access
+          Monetize GitHub Repository Access
         </h1>
         <p className="md:text-lg mb-6">
           UnlockRepo automates the process of granting access to your private

@@ -17,7 +17,7 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(`https://unlockrepo.com`),
   title: "UnlockRepo",
-  description: "Automate your Github repository access",
+  description: "Monetize access to your GitHub repos",
   alternates: {
     canonical: "./",
   },
