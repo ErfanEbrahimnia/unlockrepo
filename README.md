@@ -28,8 +28,9 @@ Deploying UnlockRepo is straightforward:
 2. Deploy to Vercel using `npx vercel deploy --prod`.
 3. Set up a new Postgres database.
 4. Register a [Gumroad OAuth application](https://app.gumroad.com/settings/advanced#application-form).
-5. Register a [GitHub OAuth application](https://github.com/settings/developers).
-6. Refer to the [.env.example](https://github.com/ErfanEbrahimnia/unlockrepo/blob/main/.env.example) file and add the environment keys in Vercel.
+5. In Gumroad, add a [new custom text field](https://app.gumroad.com/checkout/form) titled "Github Username" (make sure it matches this text exactly).
+6. Register a [GitHub OAuth application](https://github.com/settings/developers).
+7. Refer to the [.env.example](https://github.com/ErfanEbrahimnia/unlockrepo/blob/main/.env.example) file and add the environment keys in Vercel.
 
 ## ⚙️ Running Locally
 
