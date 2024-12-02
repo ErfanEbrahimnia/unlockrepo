@@ -40,6 +40,7 @@ export class GithubClient {
     const { data } = await this.client.request("GET /user/repos", {
       per_page: 500,
       sort: "updated",
+      type: "owner",
       headers: {
         authorization: `Bearer ${this.accessToken}`,
       },

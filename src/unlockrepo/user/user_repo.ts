@@ -86,7 +86,7 @@ export class UserRepo {
                 eb
                   .selectFrom("userConnections")
                   .selectAll()
-                  .whereRef("users.id", "=", "sessions.userId")
+                  .whereRef("userId", "=", "sessions.userId")
               ).as("connections")
             )
             .whereRef("users.id", "=", "sessions.userId")
